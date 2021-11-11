@@ -11,7 +11,7 @@
  
 **Controls/Hotkeys can be set in controls menu**
 
-**DOWNLOAD**: [Here](https://github.com/DriqUwU/hael9_mazefix/releases/download/mazefix/Danker.s.Skyblock.Mod-1.8.6-beta2.jar)
+### DOWNLOAD: [Here](https://github.com/DriqUwU/hael9_mazefix/releases/download/mazefix/Danker.s.Skyblock.Mod-1.8.6-beta2.jar)
 
 
 **Delays and values for the different features can be set with the following commands:**
