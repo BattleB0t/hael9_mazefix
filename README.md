@@ -1,7 +1,7 @@
 # Hael9 Mazefix
 **(Based on Danker's Skyblock Mod)**
 
-### Note: This mod can get you BANNAD on Hypixel Skyblock if not used correctly
+### Note: This mod can get you BANNED on Hypixel Skyblock if not used correctly
 
 **Features:**
  - Auto Terminal Solver (Featuring Mazefix)
