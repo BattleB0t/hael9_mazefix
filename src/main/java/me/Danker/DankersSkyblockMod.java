@@ -197,6 +197,8 @@ public class DankersSkyblockMod {
     public static int PET_90_TO_99;
     public static int PET_100;
 
+    public static Minecraft game = Minecraft.getMinecraft();
+
     @EventHandler
     public void init(FMLInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(this);
@@ -292,6 +294,7 @@ public class DankersSkyblockMod {
     @EventHandler
     public void preInit(final FMLPreInitializationEvent event) {
         ClientCommandHandler.instance.registerCommand(new ToggleCommand());
+        ClientCommandHandler.instance.registerCommand(new TerminalToggleCommand());
         ClientCommandHandler.instance.registerCommand(new SetkeyCommand());
         ClientCommandHandler.instance.registerCommand(new GetkeyCommand());
         ClientCommandHandler.instance.registerCommand(new SimonCommand());
@@ -2488,11 +2491,6 @@ public class DankersSkyblockMod {
         World world = mc.theWorld;
         EntityPlayerSP player = mc.thePlayer;
 
-        if (mc.currentScreen == null && System.currentTimeMillis() - lastInteractTime >= 250L) {
-            slotIn = -1;
-            lastSlot = -1;
-            mazeId = 0;
-        }
         if (keyBindings[4].isKeyDown()) {
             if (mc.objectMouseOver.getBlockPos() == null) return;
             Block block = (Minecraft.getMinecraft()).theWorld.getBlockState(mc.objectMouseOver.getBlockPos()).getBlock();
@@ -2504,6 +2502,13 @@ public class DankersSkyblockMod {
             if (!interactables.contains(block)) {
                 world.setBlockToAir(mc.objectMouseOver.getBlockPos());
             }
+        }
+
+        if (mc.currentScreen == null && System.currentTimeMillis() - lastInteractTime >= 50L) {
+            slotIn = -1;
+            lastSlot = -1;
+            this.mazeId = 0;
+            DankersSkyblockMod.chest = new int[54];
         }
 
         // Checks every second
@@ -3201,8 +3206,7 @@ public class DankersSkyblockMod {
                 player.addChatMessage(new ChatComponentText(MAIN_COLOUR + "Skill tracker paused."));
             }
         }
-        if (keyBindings[3
-                ].isPressed()) {
+        if (keyBindings[3].isPressed()) {
             for (int i = 0; i <= SimonCommand.simonAmount; i++) {
                 try {
                     Method method = mc.getClass().getDeclaredMethod("func_147121_ag", new Class[0]);
@@ -3558,30 +3562,7 @@ public class DankersSkyblockMod {
                     mc.thePlayer.closeScreen();
                     chestOpen = 0;
                 }
-                if (displayName.contains("Harp") && ToggleCommand.startsWithToggled) {
-                    String[] currentInv = new String[54];
-                    Container playerContainer = mc.thePlayer.openContainer;
-                    IInventory chestInventory = ((ContainerChest)playerContainer).getLowerChestInventory();
-                    for (int i = 37; i <= 43; i++) {
-                        ItemStack itemStack = chestInventory.getStackInSlot(i);
-                        if (itemStack != null) {
-                            if (itemStack.getUnlocalizedName().toLowerCase().contains("quartz")) {
-                                for (int j = 0; j <= 53; j++) {
-                                    ItemStack name = chestInventory.getStackInSlot(j);
-                                    if (name != null)
-                                        currentInv[j] = name.toString();
-                                }
-                                if (!Arrays.toString(currentInv).equals(Arrays.toString(harpInv))) {
-                                    mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, i, 2, 0, mc.thePlayer);
-                                    mc.thePlayer.addChatMessage(new ChatComponentText("clicked"));
-                                    until = tickAmount;
-                                    harpInv = currentInv;
-                                }
-                            }
-                        }
-                    }
-                }
-                if (displayName.equals("Navigate the maze!") && invSlots.size() == 90 && TerminalToggleCommand.autoTerminals && System.currentTimeMillis() - lastInteractTime >= SleepCommand.waitAmount) {
+                if (displayName.equals("Navigate the maze!") && invSlots.size() == 90 && TerminalToggleCommand.autoTerminals && System.currentTimeMillis() - lastInteractTime >= (SleepCommand.waitAmount + getRandomInt(0, 15))) {
                     if (this.mazeId <= mc.thePlayer.openContainer.windowId)
                         this.mazeId = mc.thePlayer.openContainer.windowId;
                     Container playerContainer = mc.thePlayer.openContainer;
@@ -3636,13 +3617,12 @@ public class DankersSkyblockMod {
                         lastInteractTime = System.currentTimeMillis();
                     }
                 }
-                if (ToggleCommand.startsWithToggled && System.currentTimeMillis() - lastInteractTime >= SleepCommand.waitAmount && displayName.startsWith("What starts with:")) {
+                if (TerminalToggleCommand.autoTerminals && System.currentTimeMillis() - lastInteractTime >= (SleepCommand.waitAmount + getRandomInt(0, 15)) && displayName.startsWith("What starts with:")) {
                     char letter = displayName.charAt(displayName.indexOf("'") + 1);
                     if (mazeId <= mc.thePlayer.openContainer.windowId)
                         mazeId = mc.thePlayer.openContainer.windowId;
                     for (Slot startsWith : invSlots) {
-                        if (startsWith.slotNumber <= lastSlot ||
-                                startsWith.getSlotIndex() <= lastSlot)
+                        if (startsWith.slotNumber <= lastSlot || startsWith.getSlotIndex() <= lastSlot)
                             continue;
                         ItemStack item = startsWith.getStack();
                         if (item == null ||
@@ -3660,7 +3640,7 @@ public class DankersSkyblockMod {
                     }
                 }
 
-                if (ToggleCommand.startsWithToggled && System.currentTimeMillis() - lastInteractTime >= SleepCommand.waitAmount && displayName.equals("Correct all the panes!")) {
+                if (TerminalToggleCommand.autoTerminals && System.currentTimeMillis() - lastInteractTime >= (SleepCommand.waitAmount + getRandomInt(0, 15)) && displayName.equals("Correct all the panes!")) {
                     for (Slot startsWith : invSlots) {
                         if (startsWith.getSlotIndex() > 53 ||
                                 startsWith.getSlotIndex() <= lastSlot)
@@ -3683,7 +3663,7 @@ public class DankersSkyblockMod {
                     }
                 }
 
-                if (ToggleCommand.startsWithToggled && System.currentTimeMillis() - lastInteractTime >= SleepCommand.waitAmount && displayName.startsWith("Select all the")) {
+                if (TerminalToggleCommand.autoTerminals && System.currentTimeMillis() - lastInteractTime >= (SleepCommand.waitAmount + getRandomInt(0, 15)) && displayName.startsWith("Select all the")) {
                     String colour = displayName.split(" ")[3];
                     for (Slot slot : invSlots) {
                         if (slot.getSlotIndex() > 53 || slot.getSlotIndex() <= lastSlot) continue;
@@ -3703,7 +3683,7 @@ public class DankersSkyblockMod {
                             break;
                     }
                 }
-                if (displayName.equals("Click in order!") && System.currentTimeMillis() - lastInteractTime >= SleepCommand.waitAmount && ToggleCommand.startsWithToggled) {
+                if (displayName.equals("Click in order!") && System.currentTimeMillis() - lastInteractTime >= (SleepCommand.waitAmount + getRandomInt(0, 15)) && TerminalToggleCommand.autoTerminals) {
                     Container playerContainer = mc.thePlayer.openContainer;
                     IInventory chestInventory = ((ContainerChest)playerContainer).getLowerChestInventory();
                     if (mazeId <= mc.thePlayer.openContainer.windowId)
@@ -3734,135 +3714,6 @@ public class DankersSkyblockMod {
                         }
                     }
                 }
-
-                if (ToggleCommand.ultrasequencerToggled && displayName.startsWith("Ultrasequencer (")) {
-                    EntityPlayerSP player = mc.thePlayer;
-                    if (invSlots.size() > 48 && invSlots.get(49).getStack() != null && player.inventory.getItemStack() == null) {
-                        if (invSlots.get(49).getStack().getDisplayName().startsWith("§7Timer: §a")) {
-                            lastUltraSequencerClicked = 0;
-                            for (Slot slot : clickInOrderSlots) {
-                                if (slot != null && slot.getStack() != null && StringUtils.stripControlCodes(slot.getStack().getDisplayName()).matches("\\d+")) {
-                                    int number = Integer.parseInt(StringUtils.stripControlCodes(slot.getStack().getDisplayName()));
-                                    if (number > lastUltraSequencerClicked) {
-                                        lastUltraSequencerClicked = number;
-                                    }
-                                }
-                            }
-                            if (clickInOrderSlots[lastUltraSequencerClicked] != null && player.inventory.getItemStack() == null && tickAmount % 2 == 0 && lastUltraSequencerClicked != 0 && until == lastUltraSequencerClicked) {
-                                Slot nextSlot = clickInOrderSlots[lastUltraSequencerClicked];
-                                new TextRenderer(mc, String.valueOf(mc.thePlayer.openContainer.windowId), 50, 50, 1.0D);
-                                mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, nextSlot.slotNumber, 0, 0, mc.thePlayer);
-                                Utils.drawOnSlot(chestSize, nextSlot.xDisplayPosition, nextSlot.yDisplayPosition, -448725184);
-                                until = lastUltraSequencerClicked + 1;
-                                tickAmount = 0;
-                            }
-                            if (clickInOrderSlots[lastUltraSequencerClicked] != null && player.inventory.getItemStack() == null && tickAmount == 18 && lastUltraSequencerClicked < 1) {
-                                Slot nextSlot = clickInOrderSlots[lastUltraSequencerClicked];
-                                new TextRenderer(mc, String.valueOf(mc.thePlayer.openContainer.windowId), 50, 50, 1.0D);
-                                mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, nextSlot.slotNumber, 0, 0, mc.thePlayer);
-                                Utils.drawOnSlot(chestSize, nextSlot.xDisplayPosition, nextSlot.yDisplayPosition, -448725184);
-                                tickAmount = 0;
-                                until = 1;
-                            }
-                            if (lastUltraSequencerClicked + 1 < clickInOrderSlots.length && clickInOrderSlots[lastUltraSequencerClicked + 1] != null) {
-                                Slot nextSlot = clickInOrderSlots[lastUltraSequencerClicked + 1];
-                                Utils.drawOnSlot(chestSize, nextSlot.xDisplayPosition, nextSlot.yDisplayPosition, -683615514);
-                            }
-                        }
-                    }
-                }
-
-                if (ToggleCommand.chronomatronToggled && displayName.startsWith("Chronomatron (")) {
-                    EntityPlayerSP player = mc.thePlayer;
-                    if (player.inventory.getItemStack() == null && invSlots.size() > 48 && invSlots.get(49).getStack() != null) {
-                        if (invSlots.get(49).getStack().getDisplayName().startsWith("§7Timer: §a") && invSlots.get(4).getStack() != null) {
-                            int round = invSlots.get(4).getStack().stackSize;
-                            int timerSeconds = Integer.parseInt(StringUtils.stripControlCodes(invSlots.get(49).getStack().getDisplayName()).replaceAll("[^\\d]", ""));
-                            if (round != lastChronomatronRound && timerSeconds == round + 2) {
-                                lastChronomatronRound = round;
-                                for (int i = 10; i <= 43; i++) {
-                                    ItemStack stack = invSlots.get(i).getStack();
-                                    if (stack == null) continue;
-                                    if (stack.getItem() == Item.getItemFromBlock(Blocks.stained_hardened_clay)) {
-                                        chronomatronPattern.add(stack.getDisplayName());
-                                        break;
-                                    }
-                                }
-                            }
-                            if (chronomatronMouseClicks < chronomatronPattern.size() && player.inventory.getItemStack() == null) {
-                                for (int i = 10; i <= 43; i++) {
-                                    ItemStack glass = (invSlots.get(i)).getStack();
-                                    if (glass != null) {
-                                        if (player.inventory.getItemStack() == null) {
-                                            if (tickAmount % 5 == 0) {
-                                                Slot glassSlot = invSlots.get(i);
-                                                if (glass.getDisplayName().equals(chronomatronPattern.get(chronomatronMouseClicks))) {
-                                                    Utils.drawOnSlot(chestSize, glassSlot.xDisplayPosition, glassSlot.yDisplayPosition, -448725184);
-                                                    mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, glassSlot.slotNumber, 0, 0, mc.thePlayer);
-                                                    chronomatronMouseClicks++;
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        } else if (invSlots.get(49).getStack().getDisplayName().equals("§aRemember the pattern!")) {
-                            chronomatronMouseClicks = 0;
-                        }
-                    }
-                    new TextRenderer(mc, String.join("\n", chronomatronPattern), (int) (guiLeft * 0.8), 10, 1);
-                }
-
-                if (ToggleCommand.superpairsToggled && displayName.contains("Superpairs (")) {
-                    new TextRenderer(mc, String.valueOf(mc.thePlayer.openContainer.windowId), 50, 50, 1.0D);
-                    HashMap<String, HashSet<Integer>> matches = new HashMap<>();
-                    for (int i = 0; i < 53; i++) {
-                        ItemStack itemStack = experimentTableSlots[i];
-                        if (itemStack == null) continue;
-                        Slot slot = invSlots.get(i);
-                        int x = guiLeft + slot.xDisplayPosition;
-                        int y = guiTop + slot.yDisplayPosition;
-                        if (chestSize != 90) y += (6 - (chestSize - 36) / 9) * 9;
-
-                        //Utils.renderItem(itemStack, x, y, -100);
-
-                        String itemName = itemStack.getDisplayName();
-                        String keyName = itemName + itemStack.getUnlocalizedName();
-                        matches.computeIfAbsent(keyName, k -> new HashSet<>());
-                        matches.get(keyName).add(i);
-                    }
-
-                    Color[] colors = {
-                            new Color(255, 0, 0, 100),
-                            new Color(0, 0, 255, 100),
-                            new Color(100, 179, 113, 100),
-                            new Color(255, 114, 255, 100),
-                            new Color(255, 199, 87, 100),
-                            new Color(119, 105, 198, 100),
-                            new Color(135, 199, 112, 100),
-                            new Color(240, 37, 240, 100),
-                            new Color(178, 132, 190, 100),
-                            new Color(63, 135, 163, 100),
-                            new Color(146, 74, 10, 100),
-                            new Color(255, 255, 255, 100),
-                            new Color(217, 252, 140, 100),
-                            new Color(255, 82, 82, 100)
-                    };
-
-                    Iterator<Color> colorIterator = Arrays.stream(colors).iterator();
-
-                    matches.forEach((itemName, slotSet) -> {
-                        if (slotSet.size() < 2) return;
-                        ArrayList<Slot> slots = new ArrayList<>();
-                        slotSet.forEach(slotNum -> slots.add(invSlots.get(slotNum)));
-                        Color color = colorIterator.next();
-                        slots.forEach(slot -> {
-                            Utils.drawOnSlot(chestSize, slot.xDisplayPosition, slot.yDisplayPosition, color.getRGB());
-                        });
-                    });
-                }
-
             }
         }
     }
@@ -3903,6 +3754,11 @@ public class DankersSkyblockMod {
         ConfigHandler.writeIntConfig("fishing", "empSC", LootCommand.empSCs);
         ConfigHandler.writeIntConfig("fishing", "yetiSC", LootCommand.yetiSCs);
 
+    }
+
+    private static int getRandomInt(int min, int max) {
+        Random r = new Random();
+        return r.nextInt((max - min) + 1) +min;
     }
 
 }

@@ -1,0 +1,12 @@
+
+.gradle/gradle.log
+.idea/compiler.xml
+.idea/gradle.xml
+.idea/jarRepositories.xml
+.idea/misc.xml
+.idea/modules/hael9_mazefix.api.iml
+.idea/modules/hael9_mazefix.main.iml
+.idea/modules/hael9_mazefix.test.iml
+.idea/runConfigurations.xml
+.idea/vcs.xml
+.idea/workspace.xml

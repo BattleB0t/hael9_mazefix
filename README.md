@@ -1,13 +1,14 @@
 # Hael9 Mazefix
 **(Based on Danker's Skyblock Mod)**
 
-### Note: This mod is can get you BANNAD on Hypixel Skyblock if not used correctly
+### Note: This mod can get you BANNED on Hypixel Skyblock if not used correctly
 
 **Features:**
  - Auto Terminal Solver (Featuring Mazefix)
  - Ghost Block creator
  - Right click spammer 
  - Removed NoRotate (it was instaban)
+ - Randomized Sleep amount
  
 **Controls/Hotkeys can be set in controls menu**
 
