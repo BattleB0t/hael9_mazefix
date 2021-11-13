@@ -7,7 +7,7 @@
  - Auto Terminal Solver (Featuring Mazefix)
  - Ghost Block creator
  - Right click spammer 
- - Removed NoRotate (it was instaban)
+ - Removed NoRotate (it was easily detectable)
  - Randomized Sleep amount
 
  
